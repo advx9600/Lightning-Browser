@@ -62,6 +62,8 @@ public final class BookmarkExporter {
             String line;
             while ((line = bookmarksReader.readLine()) != null) {
                 try {
+                    if (line.startsWith("#"))
+                        continue;
                     JSONObject object = new JSONObject(line);
                     final String folderTitle = object.getString(KEY_FOLDER);
                     bookmarks.add(
