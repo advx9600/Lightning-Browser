@@ -47,6 +47,15 @@
     </LinearLayout>
 
     <ImageView
+        android:id="@+id/delete_search"
+        android:layout_width="@dimen/material_grid_touch_small"
+        android:layout_height="@dimen/material_grid_touch_small"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/search_delete_suggestion"
+        android:scaleType="center"
+        app:srcCompat="@drawable/ic_delete_black" />
+
+    <ImageView
         android:id="@+id/complete_search"
         android:layout_width="@dimen/material_grid_touch_small"
         android:layout_height="@dimen/material_grid_touch_small"

@@ -345,4 +345,6 @@
 
     <!-- Search -->
     <string name="search_insert_suggestion">Insert suggestion</string>
+    <string name="search_delete_suggestion">Delete suggestion</string>
 </resources>
+

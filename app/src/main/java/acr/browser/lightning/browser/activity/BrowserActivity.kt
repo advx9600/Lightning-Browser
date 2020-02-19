@@ -1255,6 +1255,16 @@ abstract class BrowserActivity : ThemableBrowserActivity(), BrowserView, UIContr
                 getUrl.setSelection(it.url.length)
             }
         }
+        suggestionsAdapter?.onSuggestionDeleteClick = {
+            var url:String
+            if (it is SearchSuggestion) {
+                url = it.title
+            } else {
+                url = it.url
+            }
+            historyModel.deleteHistoryEntry(url).subscribeOn(databaseScheduler).subscribe()
+            suggestionsAdapter?.removeItem(it)
+        }
         getUrl.onItemClickListener = OnItemClickListener { _, _, position, _ ->
             val url = when (val selection = suggestionsAdapter?.getItem(position) as WebPage) {
                 is HistoryEntry,

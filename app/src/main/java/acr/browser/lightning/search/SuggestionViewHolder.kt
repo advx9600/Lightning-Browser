@@ -10,4 +10,5 @@ class SuggestionViewHolder(view: View) {
     val titleView: TextView = view.findViewById(R.id.title)
     val urlView: TextView = view.findViewById(R.id.url)
     val insertSuggestion: View = view.findViewById(R.id.complete_search)
+    var deleteSuggestion: View = view.findViewById(R.id.delete_search)
 }

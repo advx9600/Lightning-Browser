@@ -61,6 +61,12 @@ class SuggestionsAdapter(
         onSuggestionInsertClick?.invoke(it.tag as WebPage)
     }
 
+    var onSuggestionDeleteClick: ((WebPage) -> Unit)? = null
+
+    private val onClickDelete = View.OnClickListener {
+        onSuggestionDeleteClick?.invoke(it.tag as WebPage)
+    }
+
     private val layoutInflater = LayoutInflater.from(context)
 
     init {
@@ -105,6 +111,11 @@ class SuggestionsAdapter(
         return filteredList[position]
     }
 
+    fun removeItem(item:WebPage){
+        filteredList -= item
+        notifyDataSetChanged()
+    }
+
     override fun getItemId(position: Int): Long = 0
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
@@ -135,6 +146,9 @@ class SuggestionsAdapter(
 
         holder.insertSuggestion.tag = webPage
         holder.insertSuggestion.setOnClickListener(onClick)
+
+        holder.deleteSuggestion.tag = webPage
+        holder.deleteSuggestion.setOnClickListener(onClickDelete)
 
         return finalView
     }
