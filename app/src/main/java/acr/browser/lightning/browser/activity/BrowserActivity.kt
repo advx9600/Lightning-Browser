@@ -693,6 +693,7 @@ abstract class BrowserActivity : ThemableBrowserActivity(), BrowserView, UIContr
                 presenter?.newTab(homePageInitializer, true)
                 return true
             }
+
             R.id.action_incognito -> {
                 startActivity(IncognitoActivity.createIntent(this))
                 overridePendingTransition(R.anim.slide_up_in, R.anim.fade_out_scale)
@@ -740,6 +741,12 @@ abstract class BrowserActivity : ThemableBrowserActivity(), BrowserView, UIContr
                     ReadingActivity.launch(this, currentUrl)
                 }
                 return true
+            }
+            R.id.action_javascript_enable_or_disable->{
+                userPreferences.javaScriptEnabled = !userPreferences.javaScriptEnabled
+                currentView?.webView?.settings?.javaScriptEnabled =userPreferences.javaScriptEnabled
+                currentView?.reload()
+                return  true
             }
             else -> return super.onOptionsItemSelected(item)
         }
