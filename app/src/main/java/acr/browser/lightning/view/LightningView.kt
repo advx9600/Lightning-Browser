@@ -330,7 +330,7 @@ class LightningView(
 
         if (userPreferences.javaScriptEnabled) {
             settings.javaScriptEnabled = true
-            settings.javaScriptCanOpenWindowsAutomatically = true
+            settings.javaScriptCanOpenWindowsAutomatically = false
         } else {
             settings.javaScriptEnabled = false
             settings.javaScriptCanOpenWindowsAutomatically = false

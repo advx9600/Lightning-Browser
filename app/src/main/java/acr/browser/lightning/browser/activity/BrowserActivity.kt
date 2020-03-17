@@ -743,8 +743,8 @@ abstract class BrowserActivity : ThemableBrowserActivity(), BrowserView, UIContr
                 return true
             }
             R.id.action_javascript_enable_or_disable->{
-                userPreferences.javaScriptEnabled = !userPreferences.javaScriptEnabled
-                currentView?.webView?.settings?.javaScriptEnabled =userPreferences.javaScriptEnabled
+                //userPreferences.javaScriptEnabled = !userPreferences.javaScriptEnabled
+                currentView?.webView?.settings?.javaScriptEnabled = !currentView?.webView?.settings?.javaScriptEnabled!!
                 currentView?.reload()
                 return  true
             }
