@@ -7,6 +7,7 @@ import android.content.ContentValues
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import androidx.annotation.MainThread
 import androidx.annotation.WorkerThread
 import io.reactivex.Completable
 import io.reactivex.Single
@@ -14,11 +15,12 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-@WorkerThread
+@MainThread
 class DisableJsDatabase @Inject constructor(
         application: Application
 ) : SQLiteOpenHelper(application, DATABASE_NAME, null, DATABASE_VERSION),DisableJsRepository{
 
+    private  var dataChanged:Boolean = false
     private val database: SQLiteDatabase by databaseDelegate()
 
     override fun onCreate(db: SQLiteDatabase?) {
@@ -60,6 +62,15 @@ class DisableJsDatabase @Inject constructor(
 
     override fun removeDisableJsItem(item: DisableJsEntry): Completable = Completable.fromAction(){
         database.delete(TABLE_WHITELIST, "$KEY_URL = ?", arrayOf(item.url))
+    }
+
+    override fun getDataChanged(): Boolean {
+        return dataChanged
+    }
+
+    override fun setDataChanged(changed: Boolean){
+        dataChanged = changed
+        return
     }
 
 

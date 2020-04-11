@@ -6,6 +6,7 @@ import acr.browser.lightning.adblock.AdBlocker
 import acr.browser.lightning.adblock.allowlist.AllowListModel
 import acr.browser.lightning.constant.FILE
 import acr.browser.lightning.controller.UIController
+import acr.browser.lightning.database.disablejs.DisableJsEntry
 import acr.browser.lightning.database.disablejs.DisableJsRepository
 import acr.browser.lightning.di.injector
 import acr.browser.lightning.extensions.resizeAndShow
@@ -34,6 +35,7 @@ import android.webkit.*
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.TextView
+import androidx.annotation.MainThread
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.FileProvider
 import io.reactivex.Observable
@@ -72,6 +74,8 @@ class LightningWebClient(
     private var zoomScale = 0.0f
 
     private var currentUrl: String = ""
+
+    private var disableJsUrlList:List<DisableJsEntry> = listOf()
 
     var sslState: SslState = SslState.None
         private set(value) {
@@ -156,22 +160,29 @@ class LightningWebClient(
         }
         uiController.tabChanged(lightningView)
 
-        val sub = disableJsUrlManager.allDisableJsListItems()
-                .subscribe{it ->
-                    var find = false
-                    for (item in it){
-                        if (url?.startsWith(item.url)!!){
-                            view?.settings?.javaScriptEnabled = false
-                            find = true
-                            break;
-                        }
-                    }
-                    if (!find){
-                        view?.settings?.javaScriptEnabled = userPreferences.javaScriptEnabled
-                    }
-                }
         val composite = CompositeDisposable()
-        composite.add(sub)
+        if (disableJsUrlManager.getDataChanged() || disableJsUrlList.isEmpty()){
+            disableJsUrlManager.setDataChanged(false)
+            val sub = disableJsUrlManager.allDisableJsListItems()
+                    .subscribe{it ->
+                        disableJsUrlList = it
+                    }
+
+            composite.add(sub)
+        }
+
+        var find = false
+        for (item in disableJsUrlList){
+            if (url.startsWith(item.url)){
+                view.settings?.javaScriptEnabled = false
+                find = true
+                break;
+            }
+        }
+        if (!find){
+            view.settings?.javaScriptEnabled = userPreferences.javaScriptEnabled
+        }
+
         composite.dispose()
     }
 

@@ -10,4 +10,8 @@ interface DisableJsRepository{
     fun addDisableJsItem(item:DisableJsEntry): Completable
 
     fun removeDisableJsItem(item:DisableJsEntry): Completable
+
+    fun getDataChanged() :Boolean
+
+    fun setDataChanged(changed:Boolean)
 }

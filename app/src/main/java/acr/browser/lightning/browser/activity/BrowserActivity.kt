@@ -98,6 +98,7 @@ import kotlinx.android.synthetic.main.search.*
 import kotlinx.android.synthetic.main.search_interface.*
 import kotlinx.android.synthetic.main.toolbar.*
 import java.io.IOException
+import java.util.*
 import javax.inject.Inject
 import kotlin.system.exitProcess
 
@@ -754,18 +755,19 @@ abstract class BrowserActivity : ThemableBrowserActivity(), BrowserView, UIContr
             R.id.action_javascript_enable_or_disable->{
                 //userPreferences.javaScriptEnabled = !userPreferences.javaScriptEnabled
                 var url = currentUrl
-                if (url!=null && url.toLowerCase().startsWith("http")) {
-                    var enabled = !currentView?.webView?.settings?.javaScriptEnabled!!
-                    currentView?.webView?.settings?.javaScriptEnabled = enabled
-                    currentView?.reload()
+                if (url!=null && url.toLowerCase(Locale.getDefault()).startsWith("http")) {
+                    val enabled = !currentView?.webView?.settings?.javaScriptEnabled!!
+                    currentView.webView?.settings?.javaScriptEnabled = enabled
+                    currentView.reload()
 
-                    var end = if (url.indexOf('/',10)> 0 ) url.indexOf('/',10) else url.length
+                    val end = if (url.indexOf('/',10)> 0 ) url.indexOf('/',10) else url.length
                     url = url.substring(0,end)
 
                     disableJsUrlManager.removeDisableJsItem(DisableJsEntry(url)).subscribe()
                     if (!enabled) {
                         disableJsUrlManager.addDisableJsItem(DisableJsEntry(url)).subscribe()
                     }
+                    disableJsUrlManager.setDataChanged(true)
                 }
                 return  true
             }
