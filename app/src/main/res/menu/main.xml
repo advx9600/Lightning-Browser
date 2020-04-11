@@ -21,6 +21,9 @@
         android:id="@+id/action_javascript_enable_or_disable"
         android:title="@string/action_javascript_enable_or_disable"/>
     <item
+        android:id="@+id/action_settings"
+        android:title="@string/settings"/>
+    <item
         android:id="@+id/action_new_tab"
         android:title="@string/action_new_tab"/>
     <item
@@ -53,8 +56,5 @@
     <item
         android:id="@+id/action_reading_mode"
         android:title="@string/reading_mode"/>
-    <item
-        android:id="@+id/action_settings"
-        android:title="@string/settings"/>
 
 </menu>
