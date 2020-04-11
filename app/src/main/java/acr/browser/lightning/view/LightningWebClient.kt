@@ -6,6 +6,7 @@ import acr.browser.lightning.adblock.AdBlocker
 import acr.browser.lightning.adblock.allowlist.AllowListModel
 import acr.browser.lightning.constant.FILE
 import acr.browser.lightning.controller.UIController
+import acr.browser.lightning.database.disablejs.DisableJsRepository
 import acr.browser.lightning.di.injector
 import acr.browser.lightning.extensions.resizeAndShow
 import acr.browser.lightning.extensions.snackbar
@@ -36,6 +37,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.FileProvider
 import io.reactivex.Observable
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 import java.io.ByteArrayInputStream
 import java.io.File
@@ -55,6 +57,7 @@ class LightningWebClient(
 
     @Inject internal lateinit var proxyUtils: ProxyUtils
     @Inject internal lateinit var userPreferences: UserPreferences
+    @Inject internal lateinit var disableJsUrlManager: DisableJsRepository
     @Inject internal lateinit var sslWarningPreferences: SslWarningPreferences
     @Inject internal lateinit var whitelistModel: AllowListModel
     @Inject internal lateinit var logger: Logger
@@ -152,6 +155,24 @@ class LightningWebClient(
             uiController.showActionBar()
         }
         uiController.tabChanged(lightningView)
+
+        val sub = disableJsUrlManager.allDisableJsListItems()
+                .subscribe{it ->
+                    var find = false
+                    for (item in it){
+                        if (url?.startsWith(item.url)!!){
+                            view?.settings?.javaScriptEnabled = false
+                            find = true
+                            break;
+                        }
+                    }
+                    if (!find){
+                        view?.settings?.javaScriptEnabled = userPreferences.javaScriptEnabled
+                    }
+                }
+        val composite = CompositeDisposable()
+        composite.add(sub)
+        composite.dispose()
     }
 
     override fun onReceivedHttpAuthRequest(
