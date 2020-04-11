@@ -14,6 +14,8 @@ import acr.browser.lightning.database.allowlist.AdBlockAllowListDatabase
 import acr.browser.lightning.database.allowlist.AdBlockAllowListRepository
 import acr.browser.lightning.database.bookmark.BookmarkDatabase
 import acr.browser.lightning.database.bookmark.BookmarkRepository
+import acr.browser.lightning.database.disablejs.DisableJsDatabase
+import acr.browser.lightning.database.disablejs.DisableJsRepository
 import acr.browser.lightning.database.downloads.DownloadsDatabase
 import acr.browser.lightning.database.downloads.DownloadsRepository
 import acr.browser.lightning.database.history.HistoryDatabase
@@ -43,6 +45,9 @@ interface AppBindsModule {
 
     @Binds
     fun bindsAdBlockAllowListModel(adBlockAllowListDatabase: AdBlockAllowListDatabase): AdBlockAllowListRepository
+
+    @Binds
+    fun bindsDisableJsModel(disableJsUrlDatabase: DisableJsDatabase): DisableJsRepository
 
     @Binds
     fun bindsAllowListModel(sessionAllowListModel: SessionAllowListModel): AllowListModel

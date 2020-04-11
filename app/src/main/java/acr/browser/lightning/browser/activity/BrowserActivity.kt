@@ -18,6 +18,9 @@ import acr.browser.lightning.database.HistoryEntry
 import acr.browser.lightning.database.SearchSuggestion
 import acr.browser.lightning.database.WebPage
 import acr.browser.lightning.database.bookmark.BookmarkRepository
+import acr.browser.lightning.database.disablejs.DisableJsDatabase
+import acr.browser.lightning.database.disablejs.DisableJsEntry
+import acr.browser.lightning.database.disablejs.DisableJsRepository
 import acr.browser.lightning.database.history.HistoryRepository
 import acr.browser.lightning.di.*
 import acr.browser.lightning.dialog.BrowserDialog
@@ -58,6 +61,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Message
 import android.provider.MediaStore
+import android.util.Log
 import android.view.*
 import android.view.View.*
 import android.view.ViewGroup.LayoutParams
@@ -83,7 +87,10 @@ import androidx.palette.graphics.Palette
 import butterknife.ButterKnife
 import com.anthonycr.grant.PermissionsManager
 import io.reactivex.Completable
+import io.reactivex.CompletableObserver
 import io.reactivex.Scheduler
+import io.reactivex.SingleObserver
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.subscribeBy
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.browser_content.*
@@ -136,6 +143,7 @@ abstract class BrowserActivity : ThemableBrowserActivity(), BrowserView, UIContr
 
     // The singleton BookmarkManager
     @Inject lateinit var bookmarkManager: BookmarkRepository
+    @Inject lateinit var disableJsUrlManager:DisableJsRepository
     @Inject lateinit var historyModel: HistoryRepository
     @Inject lateinit var searchBoxModel: SearchBoxModel
     @Inject lateinit var searchEngineProvider: SearchEngineProvider
@@ -230,6 +238,7 @@ abstract class BrowserActivity : ThemableBrowserActivity(), BrowserView, UIContr
         )
 
         initialize(savedInstanceState)
+        disableJsUrlManager.allDisableJsListItems()
     }
 
     private fun initialize(savedInstanceState: Bundle?) {
@@ -744,14 +753,25 @@ abstract class BrowserActivity : ThemableBrowserActivity(), BrowserView, UIContr
             }
             R.id.action_javascript_enable_or_disable->{
                 //userPreferences.javaScriptEnabled = !userPreferences.javaScriptEnabled
-                currentView?.webView?.settings?.javaScriptEnabled = !currentView?.webView?.settings?.javaScriptEnabled!!
-                currentView?.reload()
+                var url = currentUrl
+                if (url!=null && url.toLowerCase().startsWith("http")) {
+                    var enabled = !currentView?.webView?.settings?.javaScriptEnabled!!
+                    currentView?.webView?.settings?.javaScriptEnabled = enabled
+                    currentView?.reload()
+
+                    var end = if (url.indexOf('/',10)> 0 ) url.indexOf('/',10) else url.length
+                    url = url.substring(0,end)
+
+                    disableJsUrlManager.removeDisableJsItem(DisableJsEntry(url)).subscribe()
+                    if (!enabled) {
+                        disableJsUrlManager.addDisableJsItem(DisableJsEntry(url)).subscribe()
+                    }
+                }
                 return  true
             }
             else -> return super.onOptionsItemSelected(item)
         }
     }
-
     // By using a manager, adds a bookmark and notifies third parties about that
     private fun addBookmark(title: String, url: String) {
         val bookmark = Bookmark.Entry(url, title, 0, Bookmark.Folder.Root)

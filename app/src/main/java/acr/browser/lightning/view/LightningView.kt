@@ -8,6 +8,7 @@ import acr.browser.lightning.Capabilities
 import acr.browser.lightning.R
 import acr.browser.lightning.constant.DESKTOP_USER_AGENT
 import acr.browser.lightning.controller.UIController
+import acr.browser.lightning.database.disablejs.DisableJsRepository
 import acr.browser.lightning.di.DatabaseScheduler
 import acr.browser.lightning.di.MainScheduler
 import acr.browser.lightning.di.injector
@@ -33,15 +34,14 @@ import android.os.Message
 import android.view.*
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.View.OnTouchListener
-import android.webkit.CookieManager
-import android.webkit.WebSettings
+import android.webkit.*
 import android.webkit.WebSettings.LayoutAlgorithm
-import android.webkit.WebView
 import androidx.collection.ArrayMap
 import androidx.core.graphics.drawable.toBitmap
 import io.reactivex.Observable
 import io.reactivex.Scheduler
 import io.reactivex.Single
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import java.lang.ref.WeakReference
 import javax.inject.Inject
@@ -133,6 +133,7 @@ class LightningView(
     private val maxFling: Float
 
     @Inject internal lateinit var userPreferences: UserPreferences
+    @Inject internal lateinit var disableJsUrlManager: DisableJsRepository
     @Inject internal lateinit var dialogBuilder: LightningDialogBuilder
     @Inject internal lateinit var proxyUtils: ProxyUtils
     @Inject @field:DatabaseScheduler internal lateinit var databaseScheduler: Scheduler
@@ -369,6 +370,33 @@ class LightningView(
             CookieManager.getInstance().setAcceptThirdPartyCookies(webView,
                 !userPreferences.blockThirdPartyCookiesEnabled)
         }
+
+        webView?.webViewClient = object :WebViewClient(){
+            override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+                return super.shouldOverrideUrlLoading(view, request)
+            }
+
+            override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                val sub = disableJsUrlManager.allDisableJsListItems()
+                        .subscribe{it ->
+                            var find = false
+                            for (item in it){
+                                if (url?.startsWith(item.url)!!){
+                                    webView?.settings?.javaScriptEnabled = false
+                                    find = true
+                                    break;
+                                }
+                            }
+                            if (!find){
+                                webView?.settings?.javaScriptEnabled = userPreferences.javaScriptEnabled
+                            }
+                        }
+                val composite = CompositeDisposable()
+                composite.add(sub)
+                composite.dispose()
+            }
+        }
+
     }
 
     /**
