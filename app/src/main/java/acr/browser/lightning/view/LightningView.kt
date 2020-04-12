@@ -921,9 +921,9 @@ class LightningView(
         private val SCROLL_UP_THRESHOLD = Utils.dpToPx(10f)
 
         private val negativeColorArray = floatArrayOf(
-            -1.0f, 0f, 0f, 0f, 255f, // red
-            0f, -1.0f, 0f, 0f, 255f, // green
-            0f, 0f, -1.0f, 0f, 255f, // blue
+            -1.0f, 0f, 0f, 0f, 120f, // red
+            0f, -1.0f, 0f, 0f, 120f, // green
+            0f, 0f, -1.0f, 0f, 120f, // blue
             0f, 0f, 0f, 1.0f, 0f // alpha
         )
         private val increaseContrastColorArray = floatArrayOf(
