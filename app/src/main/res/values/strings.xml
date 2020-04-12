@@ -348,5 +348,6 @@
     <string name="search_delete_suggestion">Delete suggestion</string>
     <string name="action_javascript_enable_or_disable">Enable/Disable js</string>
     <string name="action_text_size_some_page">On/Off Text Size</string>
+    <string name="action_webview_style_mode">Night mode</string>
 </resources>
 

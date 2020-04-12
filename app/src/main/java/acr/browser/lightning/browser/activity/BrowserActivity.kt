@@ -784,6 +784,11 @@ abstract class BrowserActivity : ThemableBrowserActivity(), BrowserView, UIContr
                 }
                 return  true
             }
+            R.id.action_webview_style_mode->{
+                userPreferences.renderingMode = if (userPreferences.renderingMode == RenderingMode.NORMAL) RenderingMode.INVERTED else RenderingMode.NORMAL
+                this.onResume()
+                return  true
+            }
             else -> return super.onOptionsItemSelected(item)
         }
     }

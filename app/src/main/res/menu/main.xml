@@ -24,6 +24,9 @@
         android:id="@+id/action_text_size_some_page"
         android:title="@string/action_text_size_some_page"/>
     <item
+        android:id="@+id/action_webview_style_mode"
+        android:title="@string/action_webview_style_mode"/>
+    <item
         android:id="@+id/action_settings"
         android:title="@string/settings"/>
     <item
