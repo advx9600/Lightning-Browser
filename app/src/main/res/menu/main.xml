@@ -21,6 +21,9 @@
         android:id="@+id/action_javascript_enable_or_disable"
         android:title="@string/action_javascript_enable_or_disable"/>
     <item
+        android:id="@+id/action_text_size_some_page"
+        android:title="@string/action_text_size_some_page"/>
+    <item
         android:id="@+id/action_settings"
         android:title="@string/settings"/>
     <item

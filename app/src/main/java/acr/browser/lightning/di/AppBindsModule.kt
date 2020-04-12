@@ -20,6 +20,8 @@ import acr.browser.lightning.database.downloads.DownloadsDatabase
 import acr.browser.lightning.database.downloads.DownloadsRepository
 import acr.browser.lightning.database.history.HistoryDatabase
 import acr.browser.lightning.database.history.HistoryRepository
+import acr.browser.lightning.database.textSizeSomePage.TextSizeSomePageDatabase
+import acr.browser.lightning.database.textSizeSomePage.TextSizeSomePageRepository
 import acr.browser.lightning.ssl.SessionSslWarningPreferences
 import acr.browser.lightning.ssl.SslWarningPreferences
 import dagger.Binds
@@ -48,6 +50,9 @@ interface AppBindsModule {
 
     @Binds
     fun bindsDisableJsModel(disableJsUrlDatabase: DisableJsDatabase): DisableJsRepository
+
+    @Binds
+    fun bindsTextSizeSomePageModel(textSizeSomePageDatabase: TextSizeSomePageDatabase): TextSizeSomePageRepository
 
     @Binds
     fun bindsAllowListModel(sessionAllowListModel: SessionAllowListModel): AllowListModel

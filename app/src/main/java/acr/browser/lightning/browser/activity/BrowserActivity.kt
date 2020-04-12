@@ -22,6 +22,8 @@ import acr.browser.lightning.database.disablejs.DisableJsDatabase
 import acr.browser.lightning.database.disablejs.DisableJsEntry
 import acr.browser.lightning.database.disablejs.DisableJsRepository
 import acr.browser.lightning.database.history.HistoryRepository
+import acr.browser.lightning.database.textSizeSomePage.TextSizeSomePageEntry
+import acr.browser.lightning.database.textSizeSomePage.TextSizeSomePageRepository
 import acr.browser.lightning.di.*
 import acr.browser.lightning.dialog.BrowserDialog
 import acr.browser.lightning.dialog.DialogItem
@@ -48,6 +50,7 @@ import acr.browser.lightning.view.find.FindResults
 import android.app.Activity
 import android.app.NotificationManager
 import android.content.ClipboardManager
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
@@ -145,6 +148,7 @@ abstract class BrowserActivity : ThemableBrowserActivity(), BrowserView, UIContr
     // The singleton BookmarkManager
     @Inject lateinit var bookmarkManager: BookmarkRepository
     @Inject lateinit var disableJsUrlManager:DisableJsRepository
+    @Inject lateinit var textSizeSomePageRepository: TextSizeSomePageRepository
     @Inject lateinit var historyModel: HistoryRepository
     @Inject lateinit var searchBoxModel: SearchBoxModel
     @Inject lateinit var searchEngineProvider: SearchEngineProvider
@@ -771,8 +775,62 @@ abstract class BrowserActivity : ThemableBrowserActivity(), BrowserView, UIContr
                 }
                 return  true
             }
+            R.id.action_text_size_some_page ->{
+                textSizeSomePageRepository.allData().subscribe{
+                    list->
+                    run {
+                        popSetTextSizeSomePageDialogBox(list,currentUrl.toString())
+                    }
+                }
+                return  true
+            }
             else -> return super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun popSetTextSizeSomePageDialogBox(list:List<TextSizeSomePageEntry>,url:String){
+        val maxValue = 5
+        val index = textSizeSomePageRepository.findIndexOf(list, url)
+        val dataEntry = if(index < 0) TextSizeSomePageEntry(url,0) else list[index]
+
+        AlertDialog.Builder(this).apply {
+            val customView = (layoutInflater.inflate(R.layout.dialog_seek_bar, null) as LinearLayout).apply {
+
+                findViewById<SeekBar>(R.id.text_size_seekbar).apply {
+                    setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener{
+                        override fun onProgressChanged(p0: SeekBar?, progress: Int, user: Boolean) {
+                            if (user) {
+                                dataEntry.textSize = progress
+                                tabsManager.currentTab?.webView?.settings?.textZoom = textSizeSomePageRepository.getTextZoomFromTextSize(progress)
+                            }
+                        }
+
+                        override fun onStartTrackingTouch(p0: SeekBar?) {
+
+                        }
+
+                        override fun onStopTrackingTouch(p0: SeekBar?) {
+
+                        }
+
+                    })
+                    max = maxValue
+                    progress = dataEntry.textSize
+                }
+            }
+            setView(customView)
+            setTitle(R.string.title_text_size)
+            setOnDismissListener(object:DialogInterface.OnDismissListener{
+                override fun onDismiss(p0: DialogInterface?) {
+                    textSizeSomePageRepository.delData(dataEntry).subscribe()
+                    if (dataEntry.textSize > 0)
+                        textSizeSomePageRepository.addData(dataEntry).subscribe()
+                    textSizeSomePageRepository.setChanged(true)
+                }
+            })
+        }.resizeAndShow()
+
+//        textSizeSomePageRepository.addData(TextSizeSomePageEntry(url,4)).subscribe()
     }
     // By using a manager, adds a bookmark and notifies third parties about that
     private fun addBookmark(title: String, url: String) {

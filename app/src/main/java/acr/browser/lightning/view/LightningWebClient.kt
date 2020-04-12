@@ -8,6 +8,8 @@ import acr.browser.lightning.constant.FILE
 import acr.browser.lightning.controller.UIController
 import acr.browser.lightning.database.disablejs.DisableJsEntry
 import acr.browser.lightning.database.disablejs.DisableJsRepository
+import acr.browser.lightning.database.textSizeSomePage.TextSizeSomePageEntry
+import acr.browser.lightning.database.textSizeSomePage.TextSizeSomePageRepository
 import acr.browser.lightning.di.injector
 import acr.browser.lightning.extensions.resizeAndShow
 import acr.browser.lightning.extensions.snackbar
@@ -60,6 +62,7 @@ class LightningWebClient(
     @Inject internal lateinit var proxyUtils: ProxyUtils
     @Inject internal lateinit var userPreferences: UserPreferences
     @Inject internal lateinit var disableJsUrlManager: DisableJsRepository
+    @Inject internal lateinit var textSizeSomePageManager:TextSizeSomePageRepository
     @Inject internal lateinit var sslWarningPreferences: SslWarningPreferences
     @Inject internal lateinit var whitelistModel: AllowListModel
     @Inject internal lateinit var logger: Logger
@@ -76,6 +79,7 @@ class LightningWebClient(
     private var currentUrl: String = ""
 
     private var disableJsUrlList:List<DisableJsEntry> = listOf()
+    private var textSizePageList:List<TextSizeSomePageEntry> = listOf()
 
     var sslState: SslState = SslState.None
         private set(value) {
@@ -182,6 +186,30 @@ class LightningWebClient(
         if (!find){
             view.settings?.javaScriptEnabled = userPreferences.javaScriptEnabled
         }
+
+        if (textSizeSomePageManager.getChanged() || textSizePageList.size == 0){
+            textSizeSomePageManager.setChanged(false)
+            val subPage = textSizeSomePageManager.allData().subscribe{
+                it-> textSizePageList = it
+            }
+            composite.add(subPage)
+        }
+
+        val textSizePageIndex = textSizeSomePageManager.findIndexOf(textSizePageList,currentUrl)
+        var textZoom = when (userPreferences.textSize) {
+            0 -> 200
+            1 -> 150
+            2 -> 125
+            3 -> 100
+            4 -> 75
+            5 -> 50
+            else -> throw IllegalArgumentException("Unsupported text size")
+        }
+        if (textSizePageIndex > -1 && textSizePageList[textSizePageIndex].textSize > 0)
+            textZoom = textSizeSomePageManager.getTextZoomFromTextSize(textSizePageList[textSizePageIndex].textSize)
+
+        if (view.settings?.textZoom != textZoom)
+            view.settings?.textZoom =  textZoom
 
         composite.dispose()
     }
